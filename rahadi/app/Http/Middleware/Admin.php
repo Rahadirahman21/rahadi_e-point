@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Middleware;
-
+use Illuminate\Support\Facades\Auth;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,8 +15,8 @@ class Admin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth::user()->usertype != 'admin'){
-            return redirect('dahsboard');
+        if (Auth::user()->usertype != 'admin'){
+            return redirect('dashboard');
         }
         return $next($request);
     }
