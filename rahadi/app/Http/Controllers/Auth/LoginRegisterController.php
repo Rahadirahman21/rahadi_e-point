@@ -65,7 +65,7 @@ class LoginRegisterController extends Controller
             if ($request->user()->usertype == 'admin') {
                 return redirect('admin/dashboard')->with('success', 'You have successfully logged in!');
             }
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         return back()->withErrors([
