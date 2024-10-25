@@ -28,9 +28,9 @@ class SiswaController extends Controller
 
         // Tambahkan pencarian jika ada input cari
         if (request('cari')) {
-            $siswas = $this->search(request('cari')); // Perbaiki assignment operator
+            $siswas = $this->search(request('cari'));
         } else {
-            $siswas = $siswas->paginate(10); // Tambahkan pagination di sini
+            $siswas = $siswas->paginate(10);
         }
 
         return view('admin.siswa.index', compact('siswas'));
@@ -53,12 +53,11 @@ class SiswaController extends Controller
             'tingkatan' => 'required',
             'jurusan' => 'required',
             'kelas' => 'required',
-            'hp' => 'required|numeric', // Memperbaiki validasi nomor HP
+            'hp' => 'required|numeric',
         ]);
 
         // Upload the image
         $image = $request->file('image');
-        // Simpan ke public storage
         $imagePath = $image->storeAs('siswas', $image->hashName(), 'public'); // Menyimpan ke 'storage/app/public/siswas'
 
         // Insert account details
@@ -67,13 +66,13 @@ class SiswaController extends Controller
         // Create siswa
         Siswa::create([
             'id_user' => $id_akun,
-            'image' => $image->hashName(), // Hanya menyimpan nama file untuk database
+            'image' => $image->hashName(),
             'nis' => $request->nis,
             'tingkatan' => $request->tingkatan,
             'jurusan' => $request->jurusan,
             'kelas' => $request->kelas,
-            'hp' => $request->hp, // Menyimpan nomor HP
-            'status' => 1 // Status bisa disesuaikan dengan kebutuhan
+            'hp' => $request->hp,
+            'status' => 1
         ]);
 
         // Redirect to index
@@ -91,8 +90,7 @@ class SiswaController extends Controller
         ]);
 
         // Get the id of the newly created user
-        $id = DB::table('users')->where('email', $email)->value('id');
-        return $id;
+        return DB::table('users')->where('email', $email)->value('id');
     }
 
     public function show(string $id): View
@@ -125,6 +123,7 @@ class SiswaController extends Controller
             ->orWhere('users.email', 'like', '%' . $cari . '%')
             ->paginate(10);
     }
+
     public function edit(string $id): View
     {
         // Get data from the database
@@ -140,78 +139,84 @@ class SiswaController extends Controller
 
         return view('admin.siswa.edit', compact('siswa'));
     }
+
     public function update(Request $request, $id): RedirectResponse
-{
-    // calidate form
-    $validated = $request->validate([
-        'name' => 'required|string|max:250',
-        'image' => 'image|mimes:jpeg,png,jpg|max:2048',
-        'nis' => 'required|numeric',
-        'tingkatan' => 'required',
-        'jurusan' => 'required',
-        'kelas' => 'required',
-        'hp' => 'required|numeric',
-        'status' => 'required'
-    ]);
-
-    $datas = Siswa::findOrFail($id);
-    $this->editAccount($request->name,$id);
-
-    if ($request->hasFile('image')) {
-        $image =$request->file('image');
-        $image->storeAs('public/siswas',$image->hashName());
-        Storage::delete('public/siswas/'. $datas->image);
-
-        $datas->update([
-        'image' => $image->hashName(),
-        'nis' => $request->nis,
-        'tingkatan' => $request->tingkatan,
-        'jurusan' => $request->jurusan,
-        'kelas' => $request->kelas,
-        'hp' => $request->hp,
-        'status' => $request->status
+    {
+        // Validate form
+        $validated = $request->validate([
+            'name' => 'required|string|max:250',
+            'image' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'nis' => 'required|numeric',
+            'tingkatan' => 'required',
+            'jurusan' => 'required',
+            'kelas' => 'required',
+            'hp' => 'required|numeric',
+            'status' => 'required'
         ]);
-    } else{
-        $datas->update([
-        'nis' => $request->nis,
-        'tingkatan' => $request->tingkatan,
-        'jurusan' => $request->jurusan,
-        'kelas' => $request->kelas,
-        'hp' => $request->hp,
-        'status' => $request->status
+
+        $datas = Siswa::findOrFail($id);
+        $this->editAccount($request->name, $id);
+
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            Storage::delete('public/siswas/' . $datas->image);
+
+            // Upload new image
+            $image = $request->file('image');
+            $imagePath = $image->storeAs('siswas', $image->hashName(), 'public');
+
+            $datas->update([
+                'image' => $image->hashName(),
+                'nis' => $request->nis,
+                'tingkatan' => $request->tingkatan,
+                'jurusan' => $request->jurusan,
+                'kelas' => $request->kelas,
+                'hp' => $request->hp,
+                'status' => $request->status
+            ]);
+        } else {
+            $datas->update([
+                'nis' => $request->nis,
+                'tingkatan' => $request->tingkatan,
+                'jurusan' => $request->jurusan,
+                'kelas' => $request->kelas,
+                'hp' => $request->hp,
+                'status' => $request->status
+            ]);
+        }
+
+        return redirect()->route('siswa.index')->with(['success' => 'Data Berhasil Diubah!']);
+    }
+
+    public function editAccount(string $name, string $id)
+    {
+        $siswa = DB::table('siswas')->where('id', $id)->value('id_user');
+        $user = User::findOrFail($siswa);
+
+        $user->update([
+            'name' => $name
         ]);
     }
-    return redirect()->route('siswa.index')->with(['success' => 'Data Berhasil Diubah!']);
+
+    public function destroy($id): RedirectResponse
+    {
+        $post = Siswa::findOrFail($id);
+
+        // Menghapus file gambar dari storage
+        Storage::delete('public/siswas/' . $post->image);
+
+        // Hapus data siswa dan data user terkait
+        $this->destroyUser($id);
+        $post->delete();
+
+        return redirect()->route('siswa.index')->with(['success' => 'Data Berhasil Dihapus!']);
+    }
+
+    public function destroyUser(string $id)
+    {
+        $siswa = DB::table('siswas')->where('id', $id)->value('id_user');
+        $user = User::findOrFail($siswa);
+
+        $user->delete();
+    }
 }
-public function editAccount(string $name, string $id)
-{
-    $siswa = DB::table('siswas')->where('id',$id)->value('id_user');
-    $user = User::findOrFail($siswa);
-
-    $user->update([
-        'name' => $name
-    ]);
-}
-public function destroy($id): RedirectResponse
-{
-    $this->destroyUser($id);
-
-    $post = Siswa::findOrFail($id);
-
-    Storage::delete('public/siswas/' . $post->image);
-
-    $post->delete();
-    return redirect()->route('siswa.index')->with(['success' => 'Data Berhasil Dihapus!']);
-}
-public function destroyUser(string $id)
-{
-    $siswa = DB::table('siswas')->where('id',$id)->value('id_user');
-    $user = User::findOrFail($siswa);
-
-    $user->delete();
-}
-}
-
-
-
-

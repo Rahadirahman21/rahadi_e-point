@@ -27,11 +27,11 @@
     <input type="text" id="name" name="name" value="{{old('name')}}">
     <br><br>
 
-    <label>Email Address</label>
+    <label>Email Address</label><br>
     <input type="email" id="email" name="email" value="{{old('email')}}">
     <br><br>
 
-    <label>Password</label>
+    <label>Password</label><br>
     <input type="password" id="password" name="password">
     <br><br>
     
@@ -42,11 +42,11 @@
      <br><br>
 
      <h2>Data Siswa</h2>
-     <label>Foto Siswa</label>
+     <label>Foto Siswa</label><br>
      <input type="file" name="image" accept="image/*" required>
      <br><br>
 
-     <label>Nis Siswa</label>
+     <label>Nis Siswa</label><br>
      <input type="text" name="nis" value="{{ old('nis') }}" required>
      <br><br>
 

@@ -36,7 +36,7 @@
     <h2>Data Siswa</h2>
 
     <label>Foto Siswa</label><br>
-    <img src="{{ asset('storage/siswas/' . $siswa->image) }}" width="120px" height="120px" alt="">
+    <img src="{{ asset('storage/siswas/' . $siswa->image) }}" width="120px" height="120px" alt=""><br>
     <input type="file" name="image" accept="image/*">
     <br><br>
 
