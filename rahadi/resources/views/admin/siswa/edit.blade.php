@@ -44,7 +44,7 @@
     <input type="text" name="nis" value="{{ old('nis', $siswa->nis) }}" required>
     <br><br>
 
-    <label>Nama Lengkap</label><br>
+    <label>Nama Lengkap</label> <br>
     <input type="text" id="name" name="name" value="{{ old('name', $siswa->name) }}" required>
     <br><br>
 
