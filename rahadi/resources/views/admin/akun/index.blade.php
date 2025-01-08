@@ -32,7 +32,8 @@
         </div>
     @endif
 
-    <table class="table" >
+    <table class="table">
+        <thead>
             <tr>
                 <th>Nama</th>
                 <th>Email</th>
@@ -47,16 +48,23 @@
                 <td>{{ $user->email }}</td>
                 <td>{{ $user->usertype }}</td>
                 <td>
-                        <a href="{{ $user->id }}" class="btn btn-sm btn-primary">EDIT</a>
+                    <a href="{{ route('akun.edit' , $user->id) }}" class="btn btn-sm btn-primary">EDIT</a>
+                    
+                    @if($user->usertype == 'siswa')
+                    <form onsubmit="return confirm('Jika Akun Siswa Dihapus Maka Data Siswa Akan Ikut Terhapus, Apakah Anda Yakin?');" action="{{ route('akun.destroy',$user->id) }}" method="POST" style="display:inline;">
+                    @else 
+                    <form onsubmit="return confirm('Apakah Anda Yakin?');" action="{{ route('akun.destroy',$user->id) }}" method="POST" style="display:inline;">
+                    @endif 
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit">HAPUS</button>
+                    </form>
                 </td>
             </tr>
             @empty
             <tr>
-                <td>
+                <td colspan="4">
                     <p>Data tidak ditemukan</p>
-                </td>
-                <td>
-                <a href="{{ route('user.index') }}">Kembali!</a>
                 </td>
             </tr>
             @endforelse

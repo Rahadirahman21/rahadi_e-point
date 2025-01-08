@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use App\Models\Siswa; // Import Siswa model
+use Illuminate\Support\Facades\DB; // Import DB facade
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 
 class LoginRegisterController extends Controller
 {
@@ -18,11 +22,12 @@ class LoginRegisterController extends Controller
         // Kirim data ke view
         return view('admin.akun.index', compact('users'));
     }
+
     public function create()
     {
         return view('admin.akun.create');
     }
-    
+
     public function register()
     {
         return view('auth.register');
@@ -36,7 +41,7 @@ class LoginRegisterController extends Controller
             'email' => 'required|email|max:250|unique:users',
             'password' => 'required|min:8|confirmed',
         ]);
-        
+
         // Buat user baru
         User::create([
             'name' => $request->name,
@@ -44,23 +49,21 @@ class LoginRegisterController extends Controller
             'password' => Hash::make($request->password),
             'usertype' => 'admin'
         ]);
-
-        // Autentikasi user
-        // $credentials = $request->only('email', 'password');
-        // Auth::attempt($credentials);
-        // $request->session()->regenerate();
-
-        // Cek tipe user dan arahkan ke dashboard yang sesuai
-        // if ($request->user()->usertype == 'admin') {
-        //     return redirect('admin/dashboard')->with('success', 'You have successfully registered & logged in!');
-        // }
-        // return redirect()->intended(route('dashboard'));
-        return redirect()->route('akun.index')->with(['success'=>'Data Berhasil Disimpan!']);
+        return redirect()->route('akun.index')->with(['success' => 'Data Berhasil Disimpan!']);
     }
 
     public function login()
     {
         return view('auth.login');
+    }
+
+    public function edit($id)
+    {
+        // Ambil data user berdasarkan ID
+        $akun = User::findOrFail($id);
+
+        // Kirim data ke view dengan compact
+        return view('admin.akun.edit', compact('akun'));
     }
 
     public function authenticate(Request $request)
@@ -99,5 +102,88 @@ class LoginRegisterController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login')->with('success', 'You have logged out successfully!');
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:250',
+            'usertype' => 'required',
+        ]);
+
+        // Cari user berdasarkan ID
+        $datas = User::findOrFail($id);
+
+        // Update data user
+        $datas->update([
+            'name' => $request->name,
+            'usertype' => $request->usertype,
+        ]);
+
+        return redirect()->route('akun.edit', $id)->with(['success' => 'Data Berhasil Diubah!']);
+    }
+
+    public function updateEmail(Request $request, $id): RedirectResponse
+    {
+        $validated = $request->validate([
+            'email' => 'required|email|max:250|unique:users',
+        ]);
+
+        // get post by ID 
+        $datas = User::findOrFail($id);
+        //edit akun
+
+        $datas->update([
+            'email' => $request->email,
+        ]);
+
+        return redirect()->route('akun.edit', $id)->with(['success' => 'Email Berhasil Diubah!']);
+    }
+
+    public function updatePassword(Request $request, $id): RedirectResponse
+    {
+        $validated = $request->validate([
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        // get post by ID 
+        $datas = User::findOrFail($id);
+        //edit akun
+
+        $datas->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        return redirect()->route('akun.edit', $id)->with(['success' => 'Password Berhasil Diubah!']);
+    }
+
+    public function destroy($id): RedirectResponse
+    {
+        // Cari ID siswa
+        $siswa = DB::table('siswas')->where('id_user', $id)->value('id');
+
+        // Jika siswa ditemukan, hapus data siswa
+        if ($siswa) {
+            $this->destroySiswa($siswa);
+        }
+
+        // Hapus data user berdasarkan ID
+        $post = User::findOrFail($id);
+        $post->delete();
+
+        // Redirect ke halaman index dengan pesan sukses
+        return redirect()->route('akun.index')->with(['success' => 'Akun Berhasil Dihapus!']);
+    }
+
+    public function destroySiswa(string $id)
+    {
+        // Cari ID siswa
+        $post = Siswa::findOrFail($id);
+
+        // Hapus gambar terkait siswa
+        Storage::delete('public/siswas/' . $post->image);
+
+        // Hapus data siswa
+        $post->delete();
     }
 }
