@@ -10,6 +10,19 @@ use App\Models\User;
 
 class LoginRegisterController extends Controller
 {
+    public function index()
+    {
+        // Get data dari database
+        $users = User::latest()->paginate(10);
+
+        // Kirim data ke view
+        return view('admin.akun.index', compact('users'));
+    }
+    public function create()
+    {
+        return view('admin.akun.create');
+    }
+    
     public function register()
     {
         return view('auth.register');
@@ -33,15 +46,16 @@ class LoginRegisterController extends Controller
         ]);
 
         // Autentikasi user
-        $credentials = $request->only('email', 'password');
-        Auth::attempt($credentials);
-        $request->session()->regenerate();
+        // $credentials = $request->only('email', 'password');
+        // Auth::attempt($credentials);
+        // $request->session()->regenerate();
 
         // Cek tipe user dan arahkan ke dashboard yang sesuai
-        if ($request->user()->usertype == 'admin') {
-            return redirect('admin/dashboard')->with('success', 'You have successfully registered & logged in!');
-        }
-        return redirect()->intended(route('dashboard'));
+        // if ($request->user()->usertype == 'admin') {
+        //     return redirect('admin/dashboard')->with('success', 'You have successfully registered & logged in!');
+        // }
+        // return redirect()->intended(route('dashboard'));
+        return redirect()->route('akun.index')->with(['success'=>'Data Berhasil Disimpan!']);
     }
 
     public function login()

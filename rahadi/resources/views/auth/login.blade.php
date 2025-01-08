@@ -1,9 +1,10 @@
 @extends('auth.layouts')
 
 @section('content')
+    <div class="card bg-slate-200 w-96 flex justify-center items-center">
+    <div class="card-body">
+    <h1 class="text-5xl font-extrabold">Login</h1>
 
-    <h1>Login</h1>
-    <a href="{{ route('register') }}">Daftar</a>
     <br><br>
     <form action="{{ route('authenticate') }}" method="post">
         @csrf
@@ -13,5 +14,7 @@
         <input type="password" id="password" name="password"><br><br>
         <input type="submit" value="Login">
     </form>
+    </div>
+    </div>
 
 @endsection

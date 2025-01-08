@@ -12,6 +12,7 @@
 
     <!-- Logout Link -->
      <a class="nav-link" href="{{ route('siswa.index')}}">Data Siswa</a>
+     <a class="nav-link" href="{{ route('akun.index')}}">Data Akun</a>
     <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
 
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
