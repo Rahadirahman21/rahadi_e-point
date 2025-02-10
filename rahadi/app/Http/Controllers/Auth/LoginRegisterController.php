@@ -57,15 +57,6 @@ class LoginRegisterController extends Controller
         return view('auth.login');
     }
 
-    public function edit($id)
-    {
-        // Ambil data user berdasarkan ID
-        $akun = User::findOrFail($id);
-
-        // Kirim data ke view dengan compact
-        return view('admin.akun.edit', compact('akun'));
-    }
-
     public function authenticate(Request $request)
     {
         // Validasi data input login
@@ -102,6 +93,15 @@ class LoginRegisterController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login')->with('success', 'You have logged out successfully!');
+    }
+
+    public function edit($id)
+    {
+        // Ambil data user berdasarkan ID
+        $akun = User::findOrFail($id);
+
+        // Kirim data ke view dengan compact
+        return view('admin.akun.edit', compact('akun'));
     }
 
     public function update(Request $request, $id): RedirectResponse

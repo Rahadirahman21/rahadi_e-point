@@ -1,9 +1,7 @@
 @extends('auth.layouts')
 
 @section('content')
-    <div class="card bg-slate-200 w-96 flex justify-center items-center">
-    <div class="card-body">
-    <h1 class="text-5xl font-extrabold">Login</h1>
+    <h1 >Login</h1>
     
     <br><br>
     <form action="{{ route('authenticate') }}" method="post">

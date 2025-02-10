@@ -74,7 +74,7 @@
     <input type="password" id="password" name="password" >
     <br><br>
 
-    <label for="password_confirmation" class="col-md-4 col-form-label text-md-end text-start">Confirm Password</label><br>\
+    <label for="password_confirmation" class="col-md-4 col-form-label text-md-end text-start">Confirm Password</label><br>
     <div class="col-md-6">
         <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" >
     </div>
