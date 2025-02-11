@@ -7,7 +7,7 @@
 </head>
 
 <body>
-   <h1>Tambah Siswa</h1>
+   <h1>Tambah Akun</h1>
    <br><br>
    <a href="{{ route('akun.index') }}">Kembali</a><br><br>
 
